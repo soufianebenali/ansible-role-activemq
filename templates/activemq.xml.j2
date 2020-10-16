@@ -14,9 +14,9 @@
 
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="{{ activemq_instance_name }}" dataDirectory="${activemq.data}">
         <plugins>
-            <simpleAuthenticationPlugin>
+            <simpleAuthenticationPlugin anonymousAccessAllowed= "{{ activemq_allow_anonymous_access }}" >
               <users>
-                <authenticationUser username="{{ activemq_admin_user }}" password="{{ activemq_admin_password }}" groups="admins"/>
+                <authenticationUser username="{{ activemq_admin_user }}" password="{{ activemq_admin_password }}" groups="admins, producers, consumers"/>
 
             {% if activemq_authentication %}
               {% for item in activemq_authentication %}

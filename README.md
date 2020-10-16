@@ -41,6 +41,27 @@ Download url - this can be overwritten with your corporate url prefix:
 * `amq_url_prefix: "http://archive.apache.org/dist/activemq/"`
 * `amq_url: "{{ amq_url_prefix }}/{{ amq_version }}/apache-activemq-{{amq_version }}-bin.tar.gz"`
 
+Enable anonymous users:
+* `activemq_allow_anonymous_access: "true"`
+* Activemq authorization
+```
+activemq_authorization_queue: [
+  {
+    queue: ">",
+    write: "anonymous",
+    read: "anonymous",
+    admin: "anonymous"
+  }
+]
+activemq_authorization_topic: [
+  {
+    topic: ">",
+    write: "anonymous",
+    read: "anonymous",
+    admin: "anonymous"
+  }
+]
+```
 Environment vars : you can override or add new environment variables. These variables are used loaded by systemd service file
 ```
 amq_env_vars:

@@ -46,6 +46,20 @@
                 </authorizationMap>
               </map>
             </authorizationPlugin>
+            <redeliveryPlugin fallbackToDeadLetter="false" sendToDlqIfMaxRetriesExceeded="true">
+              <redeliveryPolicyMap>
+                <redeliveryPolicyMap>
+                  <redeliveryPolicyEntries>
+                    <!-- a destination specific policy -->
+                    <redeliveryPolicy queue="BL.USER_CHANGES" maximumRedeliveries="4"  redeliveryDelay="1000"/>
+                  </redeliveryPolicyEntries>
+                  <defaultEntry>
+                    <!-- the fallback policy for all other destinations -->
+                    <redeliveryPolicy maximumRedeliveries="4" initialRedeliveryDelay="1000" redeliveryDelay="1000"/>
+                  </defaultEntry>
+                  </redeliveryPolicyMap>
+                  </redeliveryPolicyMap>
+              </redeliveryPlugin>
         </plugins>
         <destinationPolicy>
             <policyMap>
@@ -69,6 +83,28 @@
               </policyEntries>
             </policyMap>
         </destinationPolicy>
+        <destinationInterceptors>
+          <virtualDestinationInterceptor>
+            <virtualDestinations>
+	            <virtualTopic name=">" prefix="VirtualTopicConsumers.*." selectorAware="false"/>
+                <compositeQueue name="BL.IDM.Provisioning" forwardOnly="true">
+                  <forwardTo>
+                    <queue physicalName="BL.IDM.Provisioning.DCS" />
+                    <queue physicalName="BL.IDM.Provisioning.UPN" />
+                    <queue physicalName="BL.IDM.Provisioning.COLLAB" />
+                    <!-- <filteredDestination selector="meta.entity = 'credential'" queue="BL.IDM.Provisioning.UPN" />
+                      <filteredDestination selector="meta.entity = 'user'" queue="BL.IDM.Provisioning.DCS" /> -->
+                  </forwardTo>
+                </compositeQueue>
+                <compositeQueue name="BL.DATACHANGE" forwardOnly="true">
+                  <forwardTo>
+                    <queue physicalName="BL.DATACHANGE.DCS" />
+                    <queue physicalName="BL.DATACHANGE.COLLAB" />
+                  </forwardTo>
+                </compositeQueue>
+              </virtualDestinations>
+            </virtualDestinationInterceptor>
+        </destinationInterceptors>
 
         <managementContext>
             <managementContext createConnector="false"/>
@@ -81,13 +117,16 @@
           <systemUsage>
             <systemUsage sendFailIfNoSpace="true">
                 <memoryUsage>
-                    <memoryUsage limit="128 mb"/>
+                    <memoryUsage limit="200 mb"/>
+                </memoryUsage>
+                <memoryUsage>
+                  <memoryUsage percentOfJvmHeap="70" />
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="100 gb"/>
                 </storeUsage>
                 <tempUsage>
-                    <tempUsage limit="50 gb"/>
+                    <tempUsage limit="100 mb"/>
                 </tempUsage>
             </systemUsage>
         </systemUsage>
